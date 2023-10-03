@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
 import pickle
+import json
 
 def preprocess_inputs(df):
     """ Preprocess the input data and returns the features ready for training
@@ -44,10 +45,23 @@ def lambda_handler(event, context):
     df = pd.read_csv(obj['Body'])
     X, y = preprocess_inputs(df)
     model, f1_score = train_model(X, y)
+    # generate a random SHA for the model
+    model_sha = os.urandom(16).hex()
     # save the model to s3 bucket registry-bucket-simple-ct
-    s3.put_object(Bucket='registry-bucket-simple-ct', Key='model.pkl', 
+    s3.put_object(Bucket='registry-bucket-simple-ct', Key=f'model_{model_sha}.pkl', 
                   Body=pickle.dumps(model), ContentType='application/octet-stream')
 
+    # after deploying the registry you can write to dynamodb table
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('simple-registry')
+    # insert the item with the fields id, published_at, tag, and evaluation metrics
+    table.put_item(Item={
+        'id': int(pd.Timestamp.now().timestamp()), 
+        'published_at': pd.Timestamp.now().isoformat(),
+        'tag': model_sha,
+        'metrics': json.dumps({
+            'f1_score': f1_score
+        })})
 
     return {
         'statusCode': 200,

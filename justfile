@@ -1,5 +1,12 @@
 set dotenv-load
 
+# create ECR repository
+create-ecr repo_name:
+    aws ecr create-repository --repository-name {{repo_name}} --image-scanning-configuration scanOnPush=true --region $AWS_REGION
+
+# ---------------------------
+# Continuous Training Recipes
+# ---------------------------
 build-ct-image:
     cd simple-continuous-training/python && docker build -t ct-image .
 
@@ -15,8 +22,29 @@ push-ct-image:
 deploy-ct-infra:
     cd simple-continuous-training && terraform plan && terraform apply -auto-approve
 
-update-code:
+update-ct-code:
     aws lambda update-function-code --function-name $FUNCTION_NAME --image-uri $AWS_CT_ECR_REPO:latest
 
 deploy-ct:
     cd simple-continuous-training && sh deploy.sh
+
+# ---------------------------
+# Registry Recipes
+# ---------------------------
+deploy-registry:
+    cd simple-registry && terraform plan && terraform apply -auto-approve
+
+# ---------------------------
+# Inference Recipes
+# ---------------------------
+build-inf-image:
+    cd simple-inference/python && docker build -t inference-image .
+
+tag-inf-image:
+    docker tag inference-image:latest $AWS_INF_ECR_REPO
+
+push-inf-image:
+    docker push $AWS_INF_ECR_REPO
+
+update-inf-code:
+    aws lambda update-function-code --function-name $INF_FUNCTION_NAME --image-uri $AWS_INF_ECR_REPO:latest
