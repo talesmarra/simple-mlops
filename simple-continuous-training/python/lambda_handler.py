@@ -1,50 +1,56 @@
 
-import boto3
-import pandas as pd
 import os
+import json
+import pickle
+import boto3
+
+import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score
-import pickle
-import json
-
-def preprocess_inputs(df):
-    """ Preprocess the input data and returns the features ready for training
-    :param df: the input data frame
-    :return: the preprocessed features
-    """
-
-    # if this is the case has to go to premium plan
-    y = (df['charges'] > 10_000).astype(int)
-    one_hots = pd.get_dummies(df[['smoker', 'region', 'sex']])
-    # concatenate the one-hot encoded columns with the age, bmi, and children columns
-    X = pd.concat([df[['age', 'bmi', 'children']], one_hots], axis=1)
-    return X, y
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
 
 
-def train_model(X, y):
-    """ Trains a logistic regression model and returns the trained model and the f1-score
-    :param X: the input features
-    :param y: the input labels
-    """
-    # split the data into train and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
-    # train a linear regression model
-    model = LogisticRegression()
-    model.fit(X_train, y_train)
-    # evaluate the model on the test using f1-score
-    f1 = f1_score(y_test, model.predict(X_test))
-    return model, f1
 
-
+CATEGORICAL_FEATURES = ['sex', 'smoker', 'region']
+NUMERICAL_FEATURES = ['age', 'bmi', 'children']
 BUCKET_NAME = "data-bucket-simple-ct"
+
 def lambda_handler(event, context):
    # read file from s3 bucket
     s3 = boto3.client('s3')
     obj = s3.get_object(Bucket=BUCKET_NAME, Key='data.csv')
     df = pd.read_csv(obj['Body'])
-    X, y = preprocess_inputs(df)
-    model, f1_score = train_model(X, y)
+    features = df.drop('charges', axis=1)
+    target = (df['charges'] > 10000).astype(int)
+    X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
+
+    # define the preprocessing pipeline
+    categorical_transformer = Pipeline(steps=[
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))
+    ])
+    numerical_transformer = Pipeline(steps=[
+        ('scaler', StandardScaler())
+    ])
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('num', numerical_transformer, NUMERICAL_FEATURES),
+            ('cat', categorical_transformer, CATEGORICAL_FEATURES)
+        ])
+    # define the model
+    model = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('clf', LogisticRegression())
+    ])
+    # fit the model
+    model.fit(X_train, y_train)
+    # evluate the model with f1 score
+    preds = model.predict(X_test)
+    f1 = f1_score(y_test, preds)
+    print(f'f1 score: {f1}')
     # generate a random SHA for the model
     model_sha = os.urandom(16).hex()
     # save the model to s3 bucket registry-bucket-simple-ct
@@ -60,7 +66,7 @@ def lambda_handler(event, context):
         'published_at': pd.Timestamp.now().isoformat(),
         'tag': model_sha,
         'metrics': json.dumps({
-            'f1_score': f1_score
+            'f1_score': f1
         })})
 
     return {

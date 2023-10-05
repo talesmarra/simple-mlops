@@ -23,7 +23,7 @@ deploy-ct-infra:
     cd simple-continuous-training && terraform plan && terraform apply -auto-approve
 
 update-ct-code:
-    aws lambda update-function-code --function-name $FUNCTION_NAME --image-uri $AWS_CT_ECR_REPO:latest
+    aws lambda update-function-code --function-name $CT_FUNCTION_NAME --image-uri $AWS_CT_ECR_REPO:latest
 
 deploy-ct:
     cd simple-continuous-training && sh deploy.sh
