@@ -15,7 +15,7 @@ aws ecr create-repository \
     --repository-name ct-image-repo \
     --image-scanning-configuration scanOnPush=true \
     --region region
-```bash
+```
 
 Then, create a .env file with the following variables:
 
@@ -24,6 +24,7 @@ AWS_REGION=(YOUR AWS REGION)
 AWS_CT_ECR_REPO=(YOUR ECR REPO)
 FUNCTION_NAME=ct-function
 ```
+
 After that, run the following commands:
 
 ```bash
