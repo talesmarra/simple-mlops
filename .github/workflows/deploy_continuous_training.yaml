@@ -9,6 +9,7 @@ on:
     branches: [ "master" ]
     paths:
       - "simple-continuous-training/**"
+      - "tests/simple-continuous-training/**"
   
 
 jobs:
