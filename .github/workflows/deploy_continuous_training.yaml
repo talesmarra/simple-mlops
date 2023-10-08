@@ -21,6 +21,6 @@ jobs:
       - name: Install pytest
         run: pip install pytest
       - name: Run tests CT
-        run: cd simple-continuous-training && just test-ct
+        run: just test-ct
       # - name: deploy
       #   run: cd simple-continuous-training && sh deploy.sh
