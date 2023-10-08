@@ -6,7 +6,7 @@ The pipeline consists of a Lambda function that is triggered by a CloudWatch eve
 
 The Lambda function reads data from a S3 bucket, trains a model and stores the model in another S3 bucket (the registry).
 
-To use this example, you need to have Terraform installed and configured to use your AWS account.
+To use this example, you need to have Terraform installed and configured to use your AWS account;
 
 First, login to ECR create an ECR repository to store the Docker image:
 
