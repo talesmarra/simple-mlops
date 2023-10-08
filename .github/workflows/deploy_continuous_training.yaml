@@ -17,11 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
-      - name: Install just
-        run: 
-          git clone 'https://mpr.makedeb.org/just'
-          cd just
-          makedeb -si
+      - uses: extractions/setup-just@v1
       - name: Install pytest
         run: pip install pytest
       - name: Run tests CT
