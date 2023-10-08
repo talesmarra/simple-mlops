@@ -28,6 +28,9 @@ update-ct-code:
 deploy-ct:
     cd simple-continuous-training && sh deploy.sh
 
+test-ct:
+    cd simple-continuous-training && pytest tests/simple-continuous-training/
+
 # ---------------------------
 # Registry Recipes
 # ---------------------------

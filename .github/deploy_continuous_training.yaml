@@ -1,0 +1,25 @@
+name: Deploy Continuous Training
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  path:
+    include:
+      - "simple-continuous-training/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - name: Install just
+        run: sudo apt install just
+      - name: Install pytest
+        run: pip install pytest
+      - name: Run tests CT
+        run: cd simple-continuous-training && just test-ct
+      # - name: deploy
+      #   run: cd simple-continuous-training && sh deploy.sh

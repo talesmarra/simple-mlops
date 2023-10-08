@@ -25,7 +25,7 @@ AWS_CT_ECR_REPO=(YOUR ECR REPO)
 FUNCTION_NAME=ct-function
 ```
 
-After that, run the following commands:
+After that, run the following command:
 
 ```bash
 just deploy-ct
