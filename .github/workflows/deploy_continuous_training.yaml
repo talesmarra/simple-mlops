@@ -3,12 +3,12 @@ name: deploy-continuous-training
 on:
   push:
     branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-  push:
     paths:
       include:
         - "simple-continuous-training/**"
+  pull_request:
+    branches: [ "master" ]
+  
 
 jobs:
   deploy-continuous-training:
