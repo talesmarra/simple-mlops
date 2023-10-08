@@ -5,6 +5,10 @@ on:
     branches: [ "master" ]
     paths:
       - "simple-continuous-training/**"
+  pull_request:
+    branches: [ "master" ]
+    paths:
+      - "simple-continuous-training/**"
   
 
 jobs:

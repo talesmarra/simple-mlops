@@ -1,4 +1,4 @@
-# Simple MLOps: Continuous Training
+# Simple MLOps: Continuous Training Pipeline
 
 This is a simple example of how to use Terraform, Lambda and Docker to create a continuous training pipeline.
 
