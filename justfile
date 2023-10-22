@@ -51,3 +51,12 @@ push-inf-image:
 
 update-inf-code:
     aws lambda update-function-code --function-name $INF_FUNCTION_NAME --image-uri $AWS_INF_ECR_REPO:latest
+
+deploy-inf:
+    cd simple-inference && sh deploy.sh
+
+deploy-inf-infra:
+    cd simple-inference && terraform plan && terraform apply -auto-approve
+
+deploy-inference:
+    cd simple-inference && sh deploy.sh
