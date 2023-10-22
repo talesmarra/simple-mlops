@@ -8,6 +8,7 @@ data "aws_iam_role" "ct_role" {
   name = "ct-role"
 } 
 
+
 # declare an AWS dynamodb table resource with one index and three attributes: published_at (date), tag (string), and evaluation_metrics (string)
 resource "aws_dynamodb_table" "simple-registry" {
   name     = "simple-registry"

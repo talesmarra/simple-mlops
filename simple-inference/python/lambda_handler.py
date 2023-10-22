@@ -10,6 +10,7 @@ def lambda_handler(event, context):
     # load body as json
     payload = json.loads(event['body'])
 
+    # get the latest model tag from the registry
     table_name = 'simple-registry'
     dynamodb = boto3.resource('dynamodb')
 
